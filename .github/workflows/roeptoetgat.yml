@@ -1,1 +1,37 @@
+name: Zoek Roeptoetgat
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # elke 10 minuten
+  workflow_dispatch:
+
+jobs:
+  search:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4 pytz
+
+      - name: Run search
+        env:
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        run: |
+          python search_roeptoetgat.py
+
+      - name: Save state
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update search state"
 
